@@ -4,7 +4,7 @@
   "description": "",
   "main": "cypress.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Write more tests\""
   },
   "files": [
     "cypress_preload.js",
@@ -17,7 +17,7 @@
   },
   "keywords": [],
   "author": "Gleb Bahmutov <gleb.bahmutov@gmail.com> (https://glebbahmutov.com/)",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/cypress-io/cypress-electron-plugin/issues"
   },
