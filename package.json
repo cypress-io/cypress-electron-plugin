@@ -1,7 +1,7 @@
 {
   "name": "@cypress/electron-plugin",
   "version": "1.1.0",
-  "description": "",
+  "description": "Cypress plugin for testing Electron applications",
   "main": "cypress.js",
   "scripts": {
     "test": "echo \"Write more tests\""
@@ -14,7 +14,13 @@
     "type": "git",
     "url": "git+https://github.com/cypress-io/cypress-electron-plugin.git"
   },
-  "keywords": [],
+  "keywords": [
+    "cypress",
+    "cypress-io",
+    "cypress-plugin",
+    "electron",
+    "testing"
+  ],
   "author": "Gleb Bahmutov <gleb.bahmutov@gmail.com> (https://glebbahmutov.com/)",
   "license": "MIT",
   "bugs": {
