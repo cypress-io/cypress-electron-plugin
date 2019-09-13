@@ -3,6 +3,10 @@
 
 See example project [cypress-example-electron](https://github.com/cypress-io/cypress-example-electron)
 
+## Restrictions
+
+Currently we only do `window.loadURL` from tests.
+
 ## Installation
 
 ⚠️ This plugin and Cypress Test Runner are highly experimental alpha previews. Thus the instructions to install and use this plugin are complicated. In the future we expect it to be as simple as installing any other Cypress plugin:
@@ -62,6 +66,14 @@ $ npm i -D @cypress/electron-plugin
 + @cypress/electron-plugin@1.1.0
 ```
 
+Add new custom command to `cypress/support/index.js`  file
+
+```js
+import '@cypress/electron-plugin/support'
+```
+
+This plugin provides new custom commands to interact with your application, like `cy.electronVisitUrl`.
+
 ### Use your Electron to run tests
 
 Your project uses Electron to load and run your `main.js` file. Install it
@@ -109,6 +121,79 @@ module.exports = (on, config) => {
 When you start Cypress you should just see the Electron in the list of browsers.
 
 ![Only your local Electron is shown](images/electron-only.png)
+
+## Refactor your application
+
+We need to be able to recreate the main browser window on demand during tests, probably even before each test. To achieve this, your application should separate application start from creating the main window.
+
+A typical Electron application starts running the `main.js` script file. Usually that file creates the browser window. To make it testable, move browser creation into a separate file, let's call it `main_browser_window.js`. That file should export just a single function that would create the window when called.
+
+```js
+// main_browser_window.js
+const _ = require('lodash')
+const { BrowserWindow } = require('electron')
+module.exports = (options = {}) => {
+  _.defaultsDeep(options, {
+    width: 200,
+    height: 200,
+    webPreferences: {
+      nodeIntegration: true
+    }
+  })
+  let win = new BrowserWindow(options)
+  // attach any other event handlers as usual
+  return win
+}
+```
+
+From `main.js` we import the window factory function and call once. This is the normal application flow.
+
+```js
+// main.js
+const { app } = require('electron')
+const MainBrowserWindow = require('./main_browser_window')
+let win
+function createWindow () {
+  // Create the browser window.
+  win = MainBrowserWindow()
+  win.loadURL('http://someurl')
+}
+app.on('ready', createWindow)
+```
+
+## Writing tests
+
+Example test should tell Cypress the path to the main browser window factory file, and the url to load.
+
+```js
+// cypress/integration/spec.js
+it('clicks', () => {
+  // window creation and url load
+  cy.electronVisitUrl('./main_browser_window.js', 'http://localhost:4600')
+  cy.get('button')
+    .click()
+    .click()
+  cy.get('#clicked').should('have.text', '2')
+})
+```
+
+When Cypress opens the local Electron app, instead of YOUR `main.js` it loads `@cypress/electron-plugin` file. This file creates the initial runner UI and starts running tests. Then `cy.electronVisitUrl` is called and Cypress creates new Electron browser window using YOUR window factory function. Cypress can still control your window and see everything that happens inside its web contents. In a picture the flow looks like this:
+
+![Electron testing flow](images/flow.png)
+
+## Debugging
+
+You can try running Cypress with `DEBUG` environment set, for example
+
+```shell
+DEBUG=cypress:launcher npx cypress open
+```
+
+To see ALL Cypress messages
+
+```shell
+DEBUG=cypress:* npx cypress open
+```
 
 ## License
 
