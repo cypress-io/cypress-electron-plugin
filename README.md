@@ -36,6 +36,13 @@ $ npx cypress cache path
 $ rm -rf /Users/gleb/Library/Caches/Cypress/3.5.0/
 ```
 
+Or you can first install Cypress NPM module with `npm i <cypress npm url>` and then call
+
+```shell
+export CYPRESS_INSTALL_BINARY=...
+$ npx cypress install -f
+```
+
 **Warning:** you probably will see the full NPM url of Cypress beta release in `package.json`.
 
 ```json
